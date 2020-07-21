@@ -64,10 +64,6 @@
                           <text value="Editable"/>
                         </properties>
                       </component>
-                      <component id="fe04f" class="javax.swing.JTextField" binding="textField1" default-binding="true">
-                        <constraints/>
-                        <properties/>
-                      </component>
                     </children>
                   </grid>
                   <splitpane id="29006">
@@ -117,7 +113,12 @@
                             </constraints>
                             <properties/>
                             <border type="none"/>
-                            <children/>
+                            <children>
+                              <component id="28d11" class="javax.swing.JEditorPane" binding="noteEditor">
+                                <constraints/>
+                                <properties/>
+                              </component>
+                            </children>
                           </scrollpane>
                           <grid id="c6273" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="2">
                             <constraints>

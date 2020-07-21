@@ -24,10 +24,17 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <toolWindow id="Notes" anchor="bottom" factoryClass="main.com.egorl.info_notes.NotesToolWindowFactory"/>
+    <applicationService serviceImplementation="main.com.egorl.info_notes.NotesStoreManager"/>
   </extensions>
 
   <actions>
     <!-- Add your actions here -->
   </actions>
+
+  <project-components>
+    <component>
+      <implementation-class>main.com.egorl.info_notes.NotesStoreManager</implementation-class>
+    </component>
+  </project-components>
 
 </idea-plugin>
