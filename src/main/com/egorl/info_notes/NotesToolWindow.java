@@ -3,11 +3,15 @@ package main.com.egorl.info_notes;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowEP;
+import com.intellij.ui.JBColor;
+
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -55,8 +59,13 @@ public class NotesToolWindow extends ToolWindowEP {
                 setEditButtonsVisible(true);
             }
         });
-        notesList.addListSelectionListener(e ->
-                switchNote(notesList.getSelectedIndex()));
+        notesList.addListSelectionListener(e -> {
+            if (notesList.getSelectedValue() != null)
+                switchNote(notesList.getSelectedValue());
+            else
+                clearNoteEditor();
+        });
+        removeButton.addActionListener(e -> removeNotes());
     }
 
     private void createNewNote() {
@@ -77,8 +86,28 @@ public class NotesToolWindow extends ToolWindowEP {
         notesStoreManager.getNotes().add(note);
     }
 
+    void clearNoteEditor() {
+        selectedNote = null;
+        noteEditor.setEditable(false);
+        noteNameField.setEditable(false);
+        noteEditor.setText("");
+        noteNameField.setText("");
+    }
+
+    private void removeNotes() {
+        List<String> selectedValuesList = notesList.getSelectedValuesList();
+        selectedValuesList.forEach(noteName -> {
+                notes.remove(noteName);
+            notesStoreManager.getNotes().removeIf(note -> note.getName() != null && note.getName().equals(noteName));
+            notesData.removeElement(noteName);
+        });
+    }
+
     private void setNoteEditable() {
-        selectedNote.setEditable(editableBox.isSelected());
+        boolean editable = editableBox.isSelected();
+        selectedNote.setEditable(editable);
+        noteEditor.setEditable(editable);
+        noteNameField.setEditable(editable);
         saveAlterNote();
     }
 
@@ -104,8 +133,7 @@ public class NotesToolWindow extends ToolWindowEP {
         noteEditor.setText(selectedNote.getContent());
     }
 
-    protected void switchNote(int index) {
-        String noteName = notesData.get(index);
+    protected void switchNote(String noteName) {
         selectedNote = notes.get(noteName);
 
         editableBox.setSelected(selectedNote.isEditable());
@@ -122,6 +150,7 @@ public class NotesToolWindow extends ToolWindowEP {
 
     private void setEditButtonsVisible(boolean visible) {
         okEditNote.setVisible(visible);
+        okEditNote.setEnabled(false);
         cancelEditNote.setVisible(visible);
     }
 

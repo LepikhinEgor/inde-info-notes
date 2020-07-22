@@ -23,7 +23,9 @@
               <tabbedpane title="Заметки"/>
             </constraints>
             <properties/>
-            <border type="none"/>
+            <border type="empty">
+              <title-color color="-4473925"/>
+            </border>
             <children>
               <splitpane id="7b1a2">
                 <constraints>
@@ -33,6 +35,7 @@
                 </constraints>
                 <properties>
                   <dividerLocation value="40"/>
+                  <dividerSize value="0"/>
                   <orientation value="0"/>
                 </properties>
                 <border type="none"/>
@@ -72,7 +75,9 @@
                     </constraints>
                     <properties>
                       <dividerLocation value="256"/>
-                      <lastDividerLocation value="200"/>
+                      <dividerSize value="5"/>
+                      <foreground color="-16777216"/>
+                      <lastDividerLocation value="256"/>
                     </properties>
                     <border type="none"/>
                     <children>
@@ -85,7 +90,9 @@
                         <children>
                           <component id="78e12" class="javax.swing.JList" binding="notesList">
                             <constraints/>
-                            <properties/>
+                            <properties>
+                              <selectionMode value="0"/>
+                            </properties>
                           </component>
                         </children>
                       </scrollpane>
@@ -116,7 +123,9 @@
                             <children>
                               <component id="28d11" class="javax.swing.JEditorPane" binding="noteEditor">
                                 <constraints/>
-                                <properties/>
+                                <properties>
+                                  <foreground color="-4473925"/>
+                                </properties>
                               </component>
                             </children>
                           </scrollpane>
