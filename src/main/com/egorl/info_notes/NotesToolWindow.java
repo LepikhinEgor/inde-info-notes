@@ -3,17 +3,14 @@ package main.com.egorl.info_notes;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowEP;
-import com.intellij.ui.JBColor;
+import main.com.egorl.info_notes.tools.TextNotesService;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class NotesToolWindow extends ToolWindowEP {
 
@@ -28,25 +25,43 @@ public class NotesToolWindow extends ToolWindowEP {
     private JButton cancelEditNote;
     private JButton okEditNote;
 
-    private Map<String, Note> notes = new HashMap<>();
+    private Map<String, Note> notes;
     private Note selectedNote;
 
-    NotesStoreManager notesStoreManager = ServiceManager.getService(NotesStoreManager.class);
+    TextNotesService textNotesService = ServiceManager.getService(TextNotesService.class);
 
-    DefaultListModel<String> notesData = new DefaultListModel<String>();
+    DefaultListModel<String> notesData = new DefaultListModel<>();
 
     public NotesToolWindow(ToolWindow toolWindow) {
+        getNotesFromDisk();
+        fillNotesList();
 
-        notes = notesStoreManager.getNotes().stream().collect(Collectors.toMap(Note::getName, note -> note));
-        notes.values().stream().sorted(Comparator.comparing(Note::getCreationDate).reversed()).forEach(note -> notesData.add(notesData.size(), note.getName()));
+        addListeners();
+    }
+
+    private void getNotesFromDisk() {
+        notes = textNotesService.getNotesMap();
+    }
+
+    private void fillNotesList() {
+        notes.values().stream()
+                .sorted(Comparator.comparing(Note::getCreationDate).reversed())
+                .forEach(note -> notesData.add(notesData.size(), note.getName()));
 
         notesList.setModel(notesData);
+    }
+
+    private void addListeners() {
         createButton.addActionListener(e -> createNewNote());
+        removeButton.addActionListener(e -> removeNotes());
+        editableBox.addActionListener(e -> setNoteEditable());
+
         okEditNote.addActionListener(e -> saveAlterNote());
         okEditNote.addActionListener(e -> setEditButtonsVisible(false));
-        editableBox.addActionListener(e -> setNoteEditable());
+
         cancelEditNote.addActionListener(e -> cancelAlterNote());
         cancelEditNote.addActionListener(e -> setEditButtonsVisible(false));
+
         noteEditor.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -59,31 +74,27 @@ public class NotesToolWindow extends ToolWindowEP {
                 setEditButtonsVisible(true);
             }
         });
+
         notesList.addListSelectionListener(e -> {
-            if (notesList.getSelectedValue() != null)
+            if (notesList.getSelectedValue() != null) {
                 switchNote(notesList.getSelectedValue());
-            else
+            }
+            else {
                 clearNoteEditor();
+            }
         });
-        removeButton.addActionListener(e -> removeNotes());
     }
 
     private void createNewNote() {
         Note note = new Note();
-        String newNoteName = "Заметка";
-        int unicNum = 1;
-        while (notes.containsKey(newNoteName)) {
-            newNoteName = "Заметка " + unicNum;
-            unicNum++;
-        }
 
-        note.setName(newNoteName);
+        note.setName(textNotesService.createNewNoteName());
         note.setContent("");
         note.setEditable(true);
 
-        notesData.add(notes.size(), note.getName());
+        notesData.add(notesData.size(), note.getName());
         notes.put(note.getName(),note);
-        notesStoreManager.getNotes().add(note);
+        textNotesService.addNote(note);
     }
 
     void clearNoteEditor() {
@@ -98,7 +109,7 @@ public class NotesToolWindow extends ToolWindowEP {
         List<String> selectedValuesList = notesList.getSelectedValuesList();
         selectedValuesList.forEach(noteName -> {
                 notes.remove(noteName);
-            notesStoreManager.getNotes().removeIf(note -> note.getName() != null && note.getName().equals(noteName));
+            textNotesService.removeNote(noteName);
             notesData.removeElement(noteName);
         });
     }
@@ -112,17 +123,13 @@ public class NotesToolWindow extends ToolWindowEP {
     }
 
     private void saveAlterNote() {
-        notesStoreManager.getNotes().forEach(note -> {
-            if (note.getName().equals(selectedNote.getName())) {
-                note.setName(noteNameField.getText());
-                note.setContent(noteEditor.getText());
-                note.setEditable(editableBox.isSelected());
-            }
-        });
+        String oldNoteName = selectedNote.getName();
+
         selectedNote.setName(noteNameField.getText());
         selectedNote.setContent(noteEditor.getText());
         selectedNote.setEditable(editableBox.isSelected());
 
+        textNotesService.alterNote(oldNoteName, selectedNote);
 
         notes.put(selectedNote.getName(), selectedNote);
         notesData.set(notesList.getSelectedIndex(), selectedNote.getName());
@@ -149,9 +156,8 @@ public class NotesToolWindow extends ToolWindowEP {
     }
 
     private void setEditButtonsVisible(boolean visible) {
-        okEditNote.setVisible(visible);
-        okEditNote.setEnabled(false);
-        cancelEditNote.setVisible(visible);
+        okEditNote.setEnabled(visible);
+        cancelEditNote.setEnabled(visible);
     }
 
 }

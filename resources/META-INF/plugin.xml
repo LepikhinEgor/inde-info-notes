@@ -1,8 +1,8 @@
 <idea-plugin>
-  <id>com.your.company.unique.plugin.id</id>
-  <name>Plugin display name here</name>
+  <id>com.egorl.info_notes</id>
+  <name>Notes</name>
   <version>1.0</version>
-  <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+  <vendor email="lepikhin.egor.dev@gmail.com">Lepikhin Egor</vendor>
 
   <description><![CDATA[
       Enter short description for your plugin here.<br>
@@ -25,6 +25,8 @@
   <extensions defaultExtensionNs="com.intellij">
     <toolWindow id="Notes" anchor="bottom" factoryClass="main.com.egorl.info_notes.NotesToolWindowFactory"/>
     <applicationService serviceImplementation="main.com.egorl.info_notes.NotesStoreManager"/>
+    <applicationService serviceImplementation="main.com.egorl.info_notes.tools.TextNotesService"/>
+    <applicationService serviceImplementation="main.com.egorl.info_notes.tools.ProjectProperties"/>
   </extensions>
 
   <actions>
@@ -34,6 +36,8 @@
   <project-components>
     <component>
       <implementation-class>main.com.egorl.info_notes.NotesStoreManager</implementation-class>
+      <implementation-class>main.com.egorl.info_notes.tools.TextNotesService</implementation-class>
+      <implementation-class>main.com.egorl.info_notes.tools.ProjectProperties</implementation-class>
     </component>
   </project-components>
 
